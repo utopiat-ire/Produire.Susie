@@ -65,6 +65,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="bin\Debug\Susie書庫.rdr" />
+    <None Include="bin\Debug\Susie画像.rdr" />
     <None Include="ire-public.snk" />
     <None Include="LICENSE" />
     <None Include="packages.config" />

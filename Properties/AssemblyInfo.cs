@@ -1,18 +1,24 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Produire;
 
 // アセンブリに関する一般情報は以下の属性セットをとおして制御されます。
-// 制御されます。アセンブリに関連付けられている情報を変更するには、
+// アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
-[assembly: AssemblyTitle("RdrSusie")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Susieホスト プラグイン")]
+[assembly: AssemblyDescription("プロデルからSusieプラグインを利用できます")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Dynabook")]
-[assembly: AssemblyProduct("RdrSusie")]
-[assembly: AssemblyCopyright("Copyright © Dynabook 2022")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Susieホスト プラグイン")]
+[assembly: AssemblyCopyright("Copyright(C) 2007-2022 utopiat.net")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
+[assembly: PluginName("Susieプラグイン")]
+[assembly: PluginDescription("プロデルからジョイステックやゲームパッドの情報を取得できます")]
+[assembly: PluginVersion("1.0")]
+[assembly: PluginAcceptVersion("1.0")]
 
 // ComVisible を false に設定すると、このアセンブリ内の型は COM コンポーネントから
 // 参照できなくなります。COM からこのアセンブリ内の型にアクセスする必要がある場合は、
