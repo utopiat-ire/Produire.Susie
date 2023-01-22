@@ -134,4 +134,4 @@ APIバージョンを返します。
 プラグインの表示名を返します。
 
 
-Copyright(C) 2022 utopiat.net. https://github.com/utopiat-ire/
+Copyright(C) 2022-2023 utopiat.net. https://github.com/utopiat-ire/

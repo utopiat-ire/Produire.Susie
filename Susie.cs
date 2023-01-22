@@ -1,5 +1,5 @@
 ﻿// Produire Susie ホストプラグイン //
-// Copyright(C) 2022 utopiat.net https://github.com/utopiat-ire/
+// Copyright(C) 2022-2023 utopiat.net https://github.com/utopiat-ire/
 // Susie API仕様: http://www2f.biglobe.ne.jp/~kana/spi_api/index.html
 
 using Microsoft.Win32.SafeHandles;
@@ -33,7 +33,7 @@ namespace Produire.Susie
 		[自分("で")]
 		public Bitmap 開く([を] string 画像ファイル)
 		{
-			var plugin = GetPluginFor(画像ファイル) as SusieImagePlugin;
+			var plugin = GetPluginFor<SusieImagePlugin>(画像ファイル);
 			if (plugin == null) return null;
 			Bitmap bmp = plugin.GetPicture(画像ファイル);
 			return bmp;
@@ -42,7 +42,7 @@ namespace Produire.Susie
 		[自分("で")]
 		public void 抽出([から] string 書庫ファイル, [を] string 対象ファイル名, [へ] string 抽出先ファイル)
 		{
-			var plugin = GetPluginFor(書庫ファイル) as SusieArchivePlugin;
+			var plugin = GetPluginFor<SusieArchivePlugin>(書庫ファイル);
 			if (plugin == null) return;
 			var info = plugin.GetFileInfo(書庫ファイル, 対象ファイル名);
 			if (info.method.Length > 0)
@@ -54,7 +54,7 @@ namespace Produire.Susie
 		[自分("で")]
 		public byte[] 抽出([から] string 書庫ファイル, [を] string 対象ファイル名)
 		{
-			var plugin = GetPluginFor(書庫ファイル) as SusieArchivePlugin;
+			var plugin = GetPluginFor<SusieArchivePlugin>(書庫ファイル);
 			if (plugin == null) return null;
 			var info = plugin.GetFileInfo(書庫ファイル, 対象ファイル名);
 			byte[] result = null;
@@ -68,27 +68,35 @@ namespace Produire.Susie
 		[自分("で"), 名詞手順("一覧")]
 		public Susie書庫項目[] 一覧([の] string 書庫ファイル)
 		{
-			var plugin = GetPluginFor(書庫ファイル) as SusieArchivePlugin;
+			var plugin = GetPluginFor<SusieArchivePlugin>(書庫ファイル);
 			if (plugin == null) return null;
 			var files = plugin.GetArchiveInfo(書庫ファイル);
 			return files;
 		}
 
-		internal SusiePlugin GetPluginFor(string filename)
+		internal T GetPluginFor<T>(string filename) where T : SusiePlugin
 		{
 			SusiePlugin selected = null;
-			using (var file = File.OpenRead(filename))
+			foreach (var plugin in pluginList)
 			{
-				foreach (var plugin in pluginList)
+				if (!(plugin is T)) continue;
+				try
 				{
-					if (plugin.IsSupported(filename, file.SafeFileHandle))
+					using (var file = File.OpenRead(filename))
 					{
-						selected = plugin;
-						break;
+						if (plugin.IsSupported(filename, file.SafeFileHandle))
+						{
+							selected = plugin;
+							break;
+						}
 					}
 				}
+				catch (SEHException)
+				{
+					if (selected != null) break;
+				}
 			}
-			return selected;
+			return selected as T;
 		}
 		public List<SusiePlugin> プラグイン一覧
 		{
@@ -288,8 +296,8 @@ namespace Produire.Susie
 				int n = 0;
 				for (; ; )
 				{
-					GetPluginInfo(hModule, (ushort)(2 * n + 3), buf, (ushort)buf.Capacity);
-					if (buf.Length == 0) break;
+					int ret = GetPluginInfo(hModule, (ushort)(2 * n + 3), buf, (ushort)buf.Capacity);
+					if (ret == 0 || buf.Length == 0) break;
 					if (filter.Length > 0) filter.Append("|");
 					filter.Append(buf.ToString());
 					GetPluginInfo(hModule, (ushort)(2 * n + 2), buf, (ushort)buf.Capacity);
@@ -312,8 +320,8 @@ namespace Produire.Susie
 				for (; ; )
 				{
 					if (filter.Length > 0) filter.Append(";");
-					GetPluginInfo(hModule, (ushort)(2 * n + 2), buf, (ushort)buf.Capacity);
-					if (buf.Length == 0) break;
+					int ret = GetPluginInfo(hModule, (ushort)(2 * n + 2), buf, (ushort)buf.Capacity);
+					if (ret == 0 || buf.Length == 0) break;
 					filter.Append(buf.ToString());
 					n++;
 				}
@@ -636,7 +644,8 @@ namespace Produire.Susie
 		/// 圧縮法の種類
 		/// </summary>
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
-		public string method; //8       
+		public string method; //8
+		
 		/// <summary>
 		/// ファイル上での位置
 		/// </summary>
@@ -657,12 +666,14 @@ namespace Produire.Susie
 		/// 相対パス
 		/// </summary>
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 200)]
-		public string path;  //200                 
+		public string path;  //200
+
 		/// <summary>
 		/// ファイルネーム
 		/// </summary>
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 200)]
-		public string filename; //200              
+		public string filename; //200
+
 		/// <summary>
 		/// CRC
 		/// </summary>
